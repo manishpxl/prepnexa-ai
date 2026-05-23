@@ -13,7 +13,7 @@ import axios from "axios";
 import { ServerUrl } from "../App";
 import { HiSparkles } from "react-icons/hi2";
 
-function Step2Interview({ interviewData, onFinish }) {
+function Step2Interview({ interviewData, onFinish, isDarkMode = false }) {
   const { interviewId, questions = [], userName, mode } = interviewData || {};
 
   const [hasStarted, setHasStarted] = useState(false);
@@ -57,6 +57,13 @@ function Step2Interview({ interviewData, onFinish }) {
     return "Technical Round";
   }, [currentQuestion, currentIndex, mode]);
 
+  const statusLabel = useMemo(() => {
+    if (isAIPlaying) return "AI speaking";
+    if (isSubmitting || isTransitioning || isFinishing) return "Processing";
+    if (!isMicOn) return "Mic paused";
+    return "Listening";
+  }, [isAIPlaying, isSubmitting, isTransitioning, isFinishing, isMicOn]);
+
   useEffect(() => {
     answerRef.current = answer;
   }, [answer]);
@@ -86,8 +93,7 @@ function Step2Interview({ interviewData, onFinish }) {
             name.includes("samantha") ||
             name.includes("female")
           );
-        }) ||
-        voices.find((voice) => voice.lang?.toLowerCase().includes("en"));
+        }) || voices.find((voice) => voice.lang?.toLowerCase().includes("en"));
 
       const maleVoice = voices.find((voice) => {
         const name = voice.name.toLowerCase();
@@ -347,12 +353,15 @@ function Step2Interview({ interviewData, onFinish }) {
   }, []);
 
   const toggleMic = () => {
-    if (isMicOn) {
-      stopMic();
-    } else {
-      startMic();
-    }
-    setIsMicOn((prev) => !prev);
+    setIsMicOn((prev) => {
+      const next = !prev;
+      if (!next) {
+        stopMic();
+      } else {
+        setTimeout(() => startMic(), 0);
+      }
+      return next;
+    });
   };
 
   const finishInterview = async () => {
@@ -439,7 +448,8 @@ function Step2Interview({ interviewData, onFinish }) {
         { withCredentials: true }
       );
 
-      const receivedFeedback = result?.data?.feedback || "Your answer has been submitted.";
+      const receivedFeedback =
+        result?.data?.feedback || "Your answer has been submitted.";
       setFeedback(receivedFeedback);
 
       await speakText(receivedFeedback);
@@ -452,24 +462,88 @@ function Step2Interview({ interviewData, onFinish }) {
     }
   };
 
+  const theme = {
+    page: isDarkMode
+      ? "min-h-screen bg-[#070b11] text-white"
+      : "min-h-screen bg-[#f8fafc] text-slate-900",
+    shell: isDarkMode
+      ? "overflow-hidden rounded-[28px] border border-white/10 bg-[#0b1118] shadow-[0_24px_80px_rgba(0,0,0,0.35)]"
+      : "overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-[0_24px_80px_rgba(15,23,42,0.08)]",
+    leftBorder: isDarkMode
+      ? "border-b border-white/10 lg:border-b-0 lg:border-r lg:border-white/10"
+      : "border-b border-slate-200 lg:border-b-0 lg:border-r lg:border-slate-200",
+    badge: isDarkMode
+      ? "mb-5 inline-flex items-center gap-2 rounded-full border border-emerald-400/20 bg-emerald-400/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-emerald-300"
+      : "mb-5 inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-emerald-700",
+    videoWrap: isDarkMode
+      ? "overflow-hidden rounded-[20px] border border-white/10 bg-black"
+      : "overflow-hidden rounded-[20px] border border-slate-200 bg-slate-100",
+    mutedLabel: isDarkMode
+      ? "text-[11px] uppercase tracking-[0.16em] text-slate-500"
+      : "text-[11px] uppercase tracking-[0.16em] text-slate-500",
+    strongText: isDarkMode ? "text-sm font-medium text-white/90" : "text-sm font-medium text-slate-800",
+    sectionLine: isDarkMode
+      ? "grid grid-cols-2 gap-6 border-y border-white/8 py-4"
+      : "grid grid-cols-2 gap-6 border-y border-slate-200 py-4",
+    timerCard: isDarkMode
+      ? "rounded-[20px] border border-white/8 bg-white/[0.025] px-4 py-4"
+      : "rounded-[20px] border border-slate-200 bg-slate-50 px-4 py-4",
+    timerInner: isDarkMode
+      ? "flex items-center justify-center rounded-[18px] bg-[#06090f] px-4 py-5"
+      : "flex items-center justify-center rounded-[18px] bg-white px-4 py-5",
+    titleWrap: isDarkMode
+      ? "mb-8 border-b border-white/10 pb-6"
+      : "mb-8 border-b border-slate-200 pb-6",
+    eyebrow: isDarkMode
+      ? "text-xs font-semibold uppercase tracking-[0.26em] text-emerald-400"
+      : "text-xs font-semibold uppercase tracking-[0.26em] text-emerald-600",
+    title: isDarkMode
+      ? "mt-3 text-[30px] font-semibold tracking-[-0.02em] text-white"
+      : "mt-3 text-[30px] font-semibold tracking-[-0.02em] text-slate-900",
+    desc: isDarkMode
+      ? "mt-2 max-w-2xl text-sm leading-7 text-slate-400"
+      : "mt-2 max-w-2xl text-sm leading-7 text-slate-600",
+    startCard: isDarkMode
+      ? "rounded-[22px] border border-white/8 bg-white/[0.025] p-6"
+      : "rounded-[22px] border border-slate-200 bg-slate-50 p-6",
+    startText: isDarkMode
+      ? "max-w-xl text-sm leading-7 text-slate-300"
+      : "max-w-xl text-sm leading-7 text-slate-600",
+    questionCard: isDarkMode
+      ? "rounded-[22px] border border-white/8 bg-white/[0.02] p-5 sm:p-6"
+      : "rounded-[22px] border border-slate-200 bg-slate-50 p-5 sm:p-6",
+    questionMeta: isDarkMode
+      ? "text-xs font-semibold uppercase tracking-[0.16em] text-slate-400"
+      : "text-xs font-semibold uppercase tracking-[0.16em] text-slate-500",
+    questionText: isDarkMode
+      ? "text-base font-semibold leading-8 text-white sm:text-[18px]"
+      : "text-base font-semibold leading-8 text-slate-900 sm:text-[18px]",
+    answerLabel: isDarkMode ? "text-sm font-medium text-slate-200" : "text-sm font-medium text-slate-700",
+    answerCount: isDarkMode ? "text-xs text-slate-500" : "text-xs text-slate-500",
+    textarea: isDarkMode
+      ? "h-[260px] w-full resize-none rounded-[20px] border border-white/8 bg-[#0d141d] p-4 text-[15px] leading-7 text-white outline-none transition placeholder:text-slate-500 focus:border-emerald-400 focus:bg-[#101925] sm:h-[320px] sm:p-5 disabled:opacity-70"
+      : "h-[260px] w-full resize-none rounded-[20px] border border-slate-200 bg-white p-4 text-[15px] leading-7 text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-emerald-500 focus:bg-white sm:h-[320px] sm:p-5 disabled:opacity-70",
+    sessionText: isDarkMode ? "pt-5 text-center text-xs text-slate-500" : "pt-5 text-center text-xs text-slate-500",
+  };
+
   return (
-    <div className="min-h-screen bg-[#070b11] text-white">
+    <div className={theme.page}>
       <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 18 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.35 }}
-          className="overflow-hidden rounded-[24px] border border-white/10 bg-[#0b1118]"
+          className={theme.shell}
         >
           <div className="grid lg:grid-cols-[420px_minmax(0,1fr)]">
-            <div className="border-b border-white/10 lg:border-b-0 lg:border-r lg:border-white/10">
+            <div className={theme.leftBorder}>
               <div className="p-6 sm:p-8">
-                <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-emerald-400/20 bg-emerald-400/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-emerald-300">
+                <div className={theme.badge}>
                   <HiSparkles />
                   Live interview
                 </div>
 
-                <div className="overflow-hidden rounded-[18px] border border-white/10 bg-black">
+                <div className={theme.videoWrap}>
                   <video
                     src={videoSource}
                     key={videoSource}
@@ -484,15 +558,13 @@ function Step2Interview({ interviewData, onFinish }) {
                 <div className="mt-5 space-y-5">
                   <div>
                     <div className="mb-2 flex items-center justify-between">
-                      <p className="text-[11px] uppercase tracking-[0.16em] text-slate-500">
-                        Progress
-                      </p>
-                      <p className="text-sm font-medium text-white/90">
+                      <p className={theme.mutedLabel}>Progress</p>
+                      <p className={theme.strongText}>
                         {Math.min(currentIndex + 1, totalQuestions || 1)} / {totalQuestions}
                       </p>
                     </div>
 
-                    <div className="h-1.5 overflow-hidden rounded-full bg-white/10">
+                    <div className={isDarkMode ? "h-1.5 overflow-hidden rounded-full bg-white/10" : "h-1.5 overflow-hidden rounded-full bg-slate-200"}>
                       <div
                         className="h-full rounded-full bg-emerald-400 transition-all duration-500"
                         style={{ width: `${progressPercent}%` }}
@@ -500,47 +572,47 @@ function Step2Interview({ interviewData, onFinish }) {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-6 border-y border-white/8 py-4">
+                  <div className={theme.sectionLine}>
                     <div>
-                      <p className="text-[11px] uppercase tracking-[0.16em] text-slate-500">
-                        Section
-                      </p>
-                      <p className="mt-2 text-sm font-medium text-white/90">
-                        {sectionLabel}
-                      </p>
+                      <p className={theme.mutedLabel}>Section</p>
+                      <p className={`mt-2 ${theme.strongText}`}>{sectionLabel}</p>
                     </div>
 
                     <div>
-                      <p className="text-[11px] uppercase tracking-[0.16em] text-slate-500">
-                        Status
-                      </p>
-                      <p className="mt-2 inline-flex items-center gap-2 text-sm font-medium text-emerald-300">
+                      <p className={theme.mutedLabel}>Status</p>
+                      <p
+                        className={`mt-2 inline-flex items-center gap-2 text-sm font-medium ${
+                          statusLabel === "AI speaking"
+                            ? "text-emerald-500"
+                            : statusLabel === "Processing"
+                            ? "text-amber-500"
+                            : statusLabel === "Mic paused"
+                            ? isDarkMode
+                              ? "text-slate-300"
+                              : "text-slate-600"
+                            : "text-cyan-500"
+                        }`}
+                      >
                         <FaWaveSquare className="text-[11px]" />
-                        {isAIPlaying
-                          ? "AI speaking"
-                          : isSubmitting || isTransitioning || isFinishing
-                          ? "Processing"
-                          : "Listening"}
+                        {statusLabel}
                       </p>
                     </div>
                   </div>
 
-                  <div className="rounded-[20px] border border-white/8 bg-white/[0.025] px-4 py-4">
+                  <div className={theme.timerCard}>
                     <div className="mb-3 flex items-center justify-between">
-                      <span className="text-[11px] uppercase tracking-[0.14em] text-slate-500">
-                        Time remaining
-                      </span>
-                      <span className="inline-flex items-center gap-2 text-[11px] font-medium text-slate-400">
+                      <span className={theme.mutedLabel}>Time remaining</span>
+                      <span className={isDarkMode ? "inline-flex items-center gap-2 text-[11px] font-medium text-slate-400" : "inline-flex items-center gap-2 text-[11px] font-medium text-slate-500"}>
                         <FaRegClock className="text-[11px]" />
                         {currentQuestion?.timeLimit || 60}s limit
                       </span>
                     </div>
 
-                    <div className="flex items-center justify-center rounded-[18px] bg-[#06090f] px-4 py-5">
+                    <div className={theme.timerInner}>
                       <Timer
                         timeLeft={timeLeft}
                         totalTime={currentQuestion?.timeLimit || 60}
-                        isDarkMode={true}
+                        isDarkMode={isDarkMode}
                       />
                     </div>
                   </div>
@@ -549,19 +621,27 @@ function Step2Interview({ interviewData, onFinish }) {
                     <motion.div
                       initial={{ opacity: 0, y: 6 }}
                       animate={{ opacity: 1, y: 0 }}
-                      className="border-l-2 border-emerald-400 bg-emerald-500/5 px-4 py-3"
+                      className={isDarkMode
+                        ? "rounded-[18px] border border-emerald-400/15 bg-emerald-500/5 px-4 py-4"
+                        : "rounded-[18px] border border-emerald-200 bg-emerald-50 px-4 py-4"}
                     >
-                      <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-emerald-300">
+                      <p className={isDarkMode
+                        ? "text-[11px] font-semibold uppercase tracking-[0.14em] text-emerald-300"
+                        : "text-[11px] font-semibold uppercase tracking-[0.14em] text-emerald-700"}>
                         AI speaking
                       </p>
-                      <p className="mt-2 text-sm leading-7 text-emerald-100">
+                      <p className={isDarkMode
+                        ? "mt-2 text-sm leading-7 text-emerald-100"
+                        : "mt-2 text-sm leading-7 text-emerald-900"}>
                         {subtitle}
                       </p>
                     </motion.div>
                   )}
 
                   {!speechSupported && (
-                    <div className="border-l-2 border-amber-400 bg-amber-500/5 px-4 py-3 text-sm text-amber-200">
+                    <div className={isDarkMode
+                      ? "rounded-[18px] border border-amber-400/20 bg-amber-500/5 px-4 py-4 text-sm leading-7 text-amber-200"
+                      : "rounded-[18px] border border-amber-200 bg-amber-50 px-4 py-4 text-sm leading-7 text-amber-800"}>
                       Voice features are limited in this browser. You can still type and submit answers manually.
                     </div>
                   )}
@@ -571,24 +651,20 @@ function Step2Interview({ interviewData, onFinish }) {
 
             <div className="p-6 sm:p-8 lg:p-10">
               <div className="mx-auto max-w-2xl">
-                <div className="mb-8">
-                  <p className="text-xs font-semibold uppercase tracking-[0.26em] text-emerald-400">
-                    PREPNEXA AI
-                  </p>
+                <div className={theme.titleWrap}>
+                  <p className={theme.eyebrow}>PREPNEXA AI</p>
 
-                  <h2 className="mt-3 text-[30px] font-semibold tracking-[-0.02em] text-white">
-                    Interview Session
-                  </h2>
+                  <h2 className={theme.title}>Interview Session</h2>
 
-                  <p className="mt-2 text-sm leading-7 text-slate-400">
-                    Answer clearly and stay concise. Your response is submitted one question at a time.
+                  <p className={theme.desc}>
+                    Answer each question clearly and stay concise. Your response is submitted one question at a time, followed by AI feedback and automatic progression to the next question.
                   </p>
                 </div>
 
                 {!hasStarted ? (
-                  <div className="border-b border-white/10 pb-8">
-                    <p className="max-w-xl text-sm leading-7 text-slate-300">
-                      Your interview is ready. Once you begin, the interviewer will ask questions, speak feedback after each answer, and automatically continue to the next one.
+                  <div className={theme.startCard}>
+                    <p className={theme.startText}>
+                      Your interview is ready. Once you begin, the interviewer will ask questions, review each response, and continue automatically until the session is complete.
                     </p>
 
                     <button
@@ -604,24 +680,26 @@ function Step2Interview({ interviewData, onFinish }) {
                       <motion.div
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="border-b border-white/10 pb-6"
+                        className={theme.questionCard}
                       >
                         <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
-                          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-400">
+                          <p className={theme.questionMeta}>
                             Question {currentIndex + 1} of {questions.length}
                           </p>
 
-                          <span className="rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1 text-xs font-semibold text-emerald-300">
+                          <span className={isDarkMode
+                            ? "rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1 text-xs font-semibold text-emerald-300"
+                            : "rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700"}>
                             {sectionLabel}
                           </span>
                         </div>
 
-                        <div className="text-base font-semibold leading-8 text-white sm:text-[18px]">
+                        <div className={theme.questionText}>
                           {currentQuestion?.question}
                         </div>
 
                         {currentIndex === questions.length - 1 && (
-                          <p className="mt-3 text-xs uppercase tracking-[0.14em] text-amber-300">
+                          <p className="mt-3 text-xs uppercase tracking-[0.14em] text-amber-500">
                             Final question
                           </p>
                         )}
@@ -631,8 +709,8 @@ function Step2Interview({ interviewData, onFinish }) {
                     <div className="pt-6">
                       <div>
                         <div className="mb-3 flex items-center justify-between">
-                          <p className="text-sm font-medium text-slate-200">Your answer</p>
-                          <p className="text-xs text-slate-500">
+                          <p className={theme.answerLabel}>Your answer</p>
+                          <p className={theme.answerCount}>
                             {answer.trim().length} characters
                           </p>
                         </div>
@@ -645,12 +723,14 @@ function Step2Interview({ interviewData, onFinish }) {
                           }}
                           value={answer}
                           disabled={isSubmitting || isTransitioning || isFinishing}
-                          className="h-[260px] w-full resize-none rounded-[18px] border border-white/8 bg-[#0d141d] p-4 text-[15px] leading-7 text-white outline-none transition placeholder:text-slate-500 focus:border-emerald-400 sm:h-[320px] sm:p-5 disabled:opacity-70"
+                          className={theme.textarea}
                         />
                       </div>
 
                       {error && (
-                        <div className="mt-4 border-l-2 border-red-400 bg-red-500/5 px-4 py-3 text-sm text-red-300">
+                        <div className={isDarkMode
+                          ? "mt-4 rounded-[18px] border border-red-400/20 bg-red-500/5 px-4 py-4 text-sm text-red-300"
+                          : "mt-4 rounded-[18px] border border-red-200 bg-red-50 px-4 py-4 text-sm text-red-700"}>
                           {error}
                         </div>
                       )}
@@ -659,15 +739,23 @@ function Step2Interview({ interviewData, onFinish }) {
                         <motion.div
                           initial={{ opacity: 0, y: 10 }}
                           animate={{ opacity: 1, y: 0 }}
-                          className="mt-5 border-l-2 border-emerald-400 bg-emerald-500/5 px-4 py-3"
+                          className={isDarkMode
+                            ? "mt-5 rounded-[18px] border border-emerald-400/20 bg-emerald-500/5 px-4 py-4"
+                            : "mt-5 rounded-[18px] border border-emerald-200 bg-emerald-50 px-4 py-4"}
                         >
-                          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-emerald-300">
+                          <p className={isDarkMode
+                            ? "text-xs font-semibold uppercase tracking-[0.16em] text-emerald-300"
+                            : "text-xs font-semibold uppercase tracking-[0.16em] text-emerald-700"}>
                             AI feedback
                           </p>
-                          <p className="mt-2 text-sm leading-7 text-slate-100">
+                          <p className={isDarkMode
+                            ? "mt-2 text-sm leading-7 text-slate-100"
+                            : "mt-2 text-sm leading-7 text-slate-700"}>
                             {feedback}
                           </p>
-                          <p className="mt-3 text-xs text-emerald-200/80">
+                          <p className={isDarkMode
+                            ? "mt-3 text-xs text-emerald-200/80"
+                            : "mt-3 text-xs text-emerald-700/80"}>
                             Moving to the next question automatically...
                           </p>
                         </motion.div>
@@ -679,21 +767,31 @@ function Step2Interview({ interviewData, onFinish }) {
                             onClick={toggleMic}
                             whileTap={{ scale: 0.96 }}
                             disabled={isSubmitting || isTransitioning || isFinishing}
-                            className={`flex h-14 w-14 items-center justify-center rounded-2xl border text-white transition ${
-                              isMicOn
-                                ? "border-white/10 bg-white/10 hover:bg-white/15"
-                                : "border-white/10 bg-slate-700 hover:bg-slate-600"
-                            } disabled:cursor-not-allowed disabled:opacity-50`}
+                            className={`flex h-14 w-14 items-center justify-center rounded-2xl border transition disabled:cursor-not-allowed disabled:opacity-50 ${
+                              isDarkMode
+                                ? isMicOn
+                                  ? "border-white/10 bg-white/10 text-white hover:bg-white/15"
+                                  : "border-white/10 bg-slate-700 text-white hover:bg-slate-600"
+                                : isMicOn
+                                ? "border-slate-200 bg-white text-slate-800 hover:bg-slate-50"
+                                : "border-slate-200 bg-slate-200 text-slate-700 hover:bg-slate-300"
+                            }`}
                             aria-label={isMicOn ? "Mute microphone" : "Enable microphone"}
                           >
-                            {isMicOn ? <FaMicrophone size={18} /> : <FaMicrophoneSlash size={18} />}
+                            {isMicOn ? (
+                              <FaMicrophone size={18} />
+                            ) : (
+                              <FaMicrophoneSlash size={18} />
+                            )}
                           </motion.button>
 
                           <motion.button
                             onClick={() => submitAnswer(false)}
                             disabled={isSubmitting || !currentQuestion || isTransitioning || isFinishing}
                             whileTap={{ scale: 0.98 }}
-                            className="flex-1 rounded-2xl bg-white py-3.5 text-sm font-semibold text-black transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50 sm:text-base"
+                            className={isDarkMode
+                              ? "flex-1 rounded-2xl bg-white py-3.5 text-sm font-semibold text-black transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50 sm:text-base"
+                              : "flex-1 rounded-2xl bg-slate-900 py-3.5 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50 sm:text-base"}
                           >
                             {isSubmitting
                               ? "Submitting answer..."
@@ -706,7 +804,7 @@ function Step2Interview({ interviewData, onFinish }) {
                         </div>
                       )}
 
-                      <p className="pt-5 text-center text-xs text-slate-500">
+                      <p className={theme.sessionText}>
                         {userName ? `${userName}` : "Candidate"} session active
                       </p>
                     </div>
