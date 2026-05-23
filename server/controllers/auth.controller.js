@@ -1,6 +1,16 @@
 import genToken from "../config/token.js";
 import User from "../models/user.model.js";
 
+const isProduction = process.env.NODE_ENV === "production";
+
+const cookieOptions = {
+  httpOnly: true,
+  secure: isProduction,
+  sameSite: isProduction ? "none" : "lax",
+  path: "/",
+  maxAge: 7 * 24 * 60 * 60 * 1000,
+};
+
 export const googleAuth = async (req, res) => {
   try {
     const { name, email } = req.body;
@@ -26,16 +36,18 @@ export const googleAuth = async (req, res) => {
 
     const token = await genToken(user._id);
 
-    res.cookie("token", token, {
-      httpOnly: true,
-      secure: false,
-      sameSite: "strict",
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-    });
+    res.cookie("token", token, cookieOptions);
 
-    return res.status(200).json(user);
+    return res.status(200).json({
+      success: true,
+      user,
+      message: "Google authentication successful",
+    });
   } catch (error) {
-    return res.status(500).json({ message: `Google auth error: ${error.message}` });
+    return res.status(500).json({
+      success: false,
+      message: `Google auth error: ${error.message}`,
+    });
   }
 };
 
@@ -43,12 +55,19 @@ export const logOut = async (req, res) => {
   try {
     res.clearCookie("token", {
       httpOnly: true,
-      secure: false,
-      sameSite: "strict",
+      secure: isProduction,
+      sameSite: isProduction ? "none" : "lax",
+      path: "/",
     });
 
-    return res.status(200).json({ message: "LogOut Successfully" });
+    return res.status(200).json({
+      success: true,
+      message: "Logout successfully",
+    });
   } catch (error) {
-    return res.status(500).json({ message: `Logout error: ${error.message}` });
+    return res.status(500).json({
+      success: false,
+      message: `Logout error: ${error.message}`,
+    });
   }
 };
