@@ -35,36 +35,34 @@ function InterviewPage() {
   const progressWidth = `${(step / steps.length) * 100}%`;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-emerald-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
+    <div className="min-h-screen bg-[#070b11] text-white">
       <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:px-8">
-        <div className="mb-8 rounded-[28px] border border-emerald-100 bg-white/90 p-5 shadow-sm backdrop-blur dark:border-slate-800 dark:bg-slate-900/90 sm:p-6">
+        <div className="mb-8 rounded-[28px] border border-white/10 bg-white/[0.03] p-5 shadow-sm backdrop-blur sm:p-6">
           <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
             <div>
-              <div className="mb-3 inline-flex items-center rounded-full border border-emerald-100 bg-emerald-50 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-emerald-700 dark:border-emerald-500/20 dark:bg-emerald-500/10 dark:text-emerald-300">
+              <div className="mb-3 inline-flex items-center rounded-full border border-emerald-400/20 bg-emerald-400/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-emerald-300">
                 Prepnexa AI interview workflow
               </div>
 
-              <h1 className="text-2xl font-bold text-slate-900 dark:text-white sm:text-3xl">
+              <h1 className="text-2xl font-bold text-white sm:text-3xl">
                 {currentStepData?.title}
               </h1>
 
-              <p className="mt-2 text-sm leading-relaxed text-slate-500 dark:text-slate-400 sm:text-base">
+              <p className="mt-2 text-sm leading-relaxed text-slate-400 sm:text-base">
                 {currentStepData?.desc}
               </p>
             </div>
 
-            <div className="rounded-2xl bg-slate-50 px-4 py-3 text-sm text-slate-600 dark:bg-slate-800 dark:text-slate-300">
-              <span className="font-semibold text-slate-900 dark:text-white">
-                Step {step}
-              </span>{" "}
-              of {steps.length}
+            <div className="rounded-2xl bg-white/5 px-4 py-3 text-sm text-slate-300">
+              <span className="font-semibold text-white">Step {step}</span> of{" "}
+              {steps.length}
             </div>
           </div>
 
           <div className="mt-6">
-            <div className="mb-4 h-2 w-full overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800">
+            <div className="mb-4 h-2 w-full overflow-hidden rounded-full bg-white/10">
               <div
-                className="h-full rounded-full bg-emerald-500 transition-all duration-500"
+                className="h-full rounded-full bg-emerald-400 transition-all duration-500"
                 style={{ width: progressWidth }}
               />
             </div>
@@ -79,20 +77,20 @@ function InterviewPage() {
                     key={item.id}
                     className={`rounded-2xl border p-4 transition-all ${
                       isActive
-                        ? "border-emerald-200 bg-emerald-50 dark:border-emerald-500/20 dark:bg-emerald-500/10"
+                        ? "border-emerald-400/20 bg-emerald-400/10"
                         : isCompleted
-                        ? "border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900"
-                        : "border-slate-100 bg-slate-50 dark:border-slate-800 dark:bg-slate-800/60"
+                        ? "border-white/10 bg-white/[0.04]"
+                        : "border-white/10 bg-white/[0.02]"
                     }`}
                   >
                     <div className="mb-2 flex items-center justify-between">
                       <span
                         className={`text-xs font-semibold uppercase tracking-[0.16em] ${
                           isActive
-                            ? "text-emerald-700 dark:text-emerald-300"
+                            ? "text-emerald-300"
                             : isCompleted
-                            ? "text-slate-700 dark:text-slate-300"
-                            : "text-slate-400 dark:text-slate-500"
+                            ? "text-slate-300"
+                            : "text-slate-500"
                         }`}
                       >
                         {item.label}
@@ -101,10 +99,10 @@ function InterviewPage() {
                       <div
                         className={`flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold ${
                           isActive
-                            ? "bg-emerald-600 text-white"
+                            ? "bg-emerald-500 text-black"
                             : isCompleted
-                            ? "bg-slate-900 text-white dark:bg-white dark:text-slate-900"
-                            : "bg-slate-200 text-slate-500 dark:bg-slate-700 dark:text-slate-300"
+                            ? "bg-white text-slate-900"
+                            : "bg-slate-700 text-slate-300"
                         }`}
                       >
                         {item.id}
@@ -113,9 +111,7 @@ function InterviewPage() {
 
                     <p
                       className={`text-sm font-semibold ${
-                        isActive || isCompleted
-                          ? "text-slate-900 dark:text-white"
-                          : "text-slate-500 dark:text-slate-400"
+                        isActive || isCompleted ? "text-white" : "text-slate-400"
                       }`}
                     >
                       {item.title}
@@ -124,8 +120,8 @@ function InterviewPage() {
                     <p
                       className={`mt-1 text-xs leading-5 ${
                         isActive || isCompleted
-                          ? "text-slate-500 dark:text-slate-400"
-                          : "text-slate-400 dark:text-slate-500"
+                          ? "text-slate-400"
+                          : "text-slate-500"
                       }`}
                     >
                       {item.desc}
@@ -149,6 +145,7 @@ function InterviewPage() {
         {step === 2 && (
           <Step2Interview
             interviewData={interviewData}
+            isDarkMode={true}
             onFinish={(report) => {
               setInterviewData(report);
               setStep(3);
