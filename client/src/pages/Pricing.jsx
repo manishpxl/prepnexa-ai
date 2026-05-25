@@ -33,12 +33,14 @@ function Pricing() {
       credits: 100,
       description:
         "A starter option for trying the platform and basic interview practice.",
+
       features: [
         "100 AI interview credits",
         "Basic performance report",
         "Voice interview access",
         "Limited history tracking",
       ],
+
       default: true,
     },
 
@@ -47,6 +49,7 @@ function Pricing() {
       name: "Starter Pack",
       price: "₹50",
       credits: 200,
+
       description:
         "A simple pack for more interview attempts and better preparation.",
 
@@ -63,6 +66,7 @@ function Pricing() {
       name: "Pro Pack",
       price: "₹100",
       credits: 500,
+
       description:
         "Built for serious preparation with better value and more interview practice.",
 
@@ -83,11 +87,21 @@ function Pricing() {
       setLoadingPlan(plan.id);
       setErrorMsg("");
 
+      // PLAN AMOUNT
+      const amount =
+        plan.id === "starter"
+          ? 50
+          : plan.id === "pro"
+          ? 100
+          : 0;
+
       // CREATE ORDER
       const result = await axios.post(
         `${ServerUrl}/api/payment/order`,
         {
           planId: plan.id,
+          amount: amount,
+          credits: plan.credits,
         },
         {
           withCredentials: true,
@@ -99,37 +113,27 @@ function Pricing() {
         result.data
       );
 
+      // RAZORPAY OPTIONS
       const options = {
         key: import.meta.env
           .VITE_RAZORPAY_KEY_ID,
 
         amount: result.data.amount,
 
-        currency: result.data.currency,
+        currency: "INR",
 
         name: "Prepnexa AI",
 
-        description: `${result.data.planName} - ${result.data.credits} Credits`,
+        description: `${plan.name} - ${plan.credits} Credits`,
 
         order_id: result.data.id,
 
-        prefill: {
-          name: "Prepnexa User",
-          email: "user@example.com",
-          contact: "7258019464",
-        },
-
-        theme: {
-          color: "#10b981",
-        },
-
-        // SUCCESS
         handler: async function (
           response
         ) {
           try {
             console.log(
-              "RAZORPAY SUCCESS:",
+              "PAYMENT SUCCESS:",
               response
             );
 
@@ -137,27 +141,18 @@ function Pricing() {
             const verifyPay =
               await axios.post(
                 `${ServerUrl}/api/payment/verify`,
-                {
-                  razorpay_order_id:
-                    response.razorpay_order_id,
-
-                  razorpay_payment_id:
-                    response.razorpay_payment_id,
-
-                  razorpay_signature:
-                    response.razorpay_signature,
-                },
+                response,
                 {
                   withCredentials: true,
                 }
               );
 
             console.log(
-              "VERIFY RESPONSE:",
+              "VERIFY SUCCESS:",
               verifyPay.data
             );
 
-            // UPDATE USER
+            // UPDATE USER DATA
             dispatch(
               setUserData(
                 verifyPay.data.user
@@ -165,12 +160,12 @@ function Pricing() {
             );
 
             alert(
-              "Payment successful. Credits added to your account."
+              "Payment Successful 🎉 Credits Added!"
             );
 
             navigate("/");
           } catch (err) {
-            console.error(
+            console.log(
               "VERIFY ERROR:",
               err
             );
@@ -178,22 +173,13 @@ function Pricing() {
             setErrorMsg(
               err?.response?.data
                 ?.message ||
-                "Payment verification failed."
+                "Payment verification failed"
             );
           }
         },
 
-        // MODAL CLOSE
-        modal: {
-          ondismiss: function () {
-            console.log(
-              "Payment popup closed"
-            );
-
-            setErrorMsg(
-              "Payment popup closed."
-            );
-          },
+        theme: {
+          color: "#10b981",
         },
       };
 
@@ -205,7 +191,7 @@ function Pricing() {
       rzp.on(
         "payment.failed",
         function (response) {
-          console.error(
+          console.log(
             "PAYMENT FAILED:",
             response.error
           );
@@ -213,14 +199,14 @@ function Pricing() {
           setErrorMsg(
             response.error
               ?.description ||
-              "Payment failed."
+              "Payment failed"
           );
         }
       );
 
       rzp.open();
     } catch (error) {
-      console.error(
+      console.log(
         "CREATE ORDER ERROR:",
         error
       );
@@ -228,7 +214,7 @@ function Pricing() {
       setErrorMsg(
         error?.response?.data
           ?.message ||
-          "Unable to start payment right now. Please try again."
+          "Unable to start payment"
       );
     } finally {
       setLoadingPlan(null);
