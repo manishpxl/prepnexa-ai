@@ -13,7 +13,7 @@ import axios from "axios";
 import { ServerUrl } from "../App";
 import { HiSparkles } from "react-icons/hi2";
 
-function Step2Interview({ interviewData, onFinish}) {
+function Step2Interview({ interviewData, onFinish, isDarkMode = false }) {
   const { interviewId, questions = [], userName, mode } = interviewData || {};
 
   const [hasStarted, setHasStarted] = useState(false);
