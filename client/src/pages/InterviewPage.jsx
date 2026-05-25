@@ -1,290 +1,162 @@
-import React, {
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
-
+import React, { useMemo, useState } from "react";
 import Step1SetUp from "../components/Step1SetUp";
 import Step2Interview from "../components/Step2Interview";
 import Step3Report from "../components/Step3Report";
 
 function InterviewPage() {
   const [step, setStep] = useState(1);
+  const [interviewData, setInterviewData] = useState(null);
 
-  const [interviewData, setInterviewData] =
-    useState(null);
-
-  // DARK MODE
-  const [isDarkMode, setIsDarkMode] =
-    useState(() => {
-      return (
-        JSON.parse(
-          localStorage.getItem("darkMode")
-        ) || false
-      );
-    });
-
-  // BODY BG UPDATE
-  useEffect(() => {
-    document.body.className = isDarkMode
-      ? "bg-[#020617]"
-      : "bg-[#f8fafc]";
-  }, [isDarkMode]);
-
-  // TOGGLE
-  const toggleDarkMode = () => {
-    const updated = !isDarkMode;
-
-    setIsDarkMode(updated);
-
-    localStorage.setItem(
-      "darkMode",
-      JSON.stringify(updated)
-    );
-  };
-
-  // STEPS
   const steps = useMemo(
     () => [
       {
         id: 1,
-        title: "SETUP",
-        subtitle:
-          "Configure your interview",
+        label: "Setup",
+        title: "Configure your interview",
         desc: "Choose role, mode, and interview preferences.",
       },
       {
         id: 2,
-        title: "SESSION",
-        subtitle:
-          "Take the interview",
+        label: "Session",
+        title: "Take the interview",
         desc: "Answer questions in a timed AI-powered interview round.",
       },
       {
         id: 3,
-        title: "REPORT",
-        subtitle:
-          "Review performance",
+        label: "Report",
+        title: "Review performance",
         desc: "Check feedback, score breakdown, and improvement areas.",
       },
     ],
     []
   );
 
-  const currentStep = steps.find(
-    (item) => item.id === step
-  );
-
-  const progressPercent =
-    ((step - 1) / (steps.length - 1)) * 100;
+  const currentStepData = steps.find((item) => item.id === step);
+  const progressWidth = `${(step / steps.length) * 100}%`;
 
   return (
-    <div
-      className={`min-h-screen transition-all duration-500 ${
-        isDarkMode
-          ? "bg-gradient-to-br from-[#020617] via-[#071129] to-[#020617] text-white"
-          : "bg-gradient-to-br from-slate-50 via-white to-slate-100 text-slate-900"
-      }`}
-    >
-      {/* TOP NAVBAR */}
-      <div
-        className={`sticky top-0 z-50 border-b backdrop-blur-xl transition-all duration-300 ${
-          isDarkMode
-            ? "border-white/10 bg-[#020617]/80 shadow-lg"
-            : "border-slate-200 bg-white/80 shadow-sm"
-        }`}
-      >
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
-          {/* LEFT */}
-          <div>
-            <p
-              className={`text-xs font-semibold uppercase tracking-[0.25em] ${
-                isDarkMode
-                  ? "text-emerald-400"
-                  : "text-emerald-600"
-              }`}
-            >
-              PREPNEXA AI INTERVIEW
-            </p>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-emerald-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
+      <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:px-8">
+        <div className="mb-8 rounded-[28px] border border-emerald-100 bg-white/90 p-5 shadow-sm backdrop-blur dark:border-slate-800 dark:bg-slate-900/90 sm:p-6">
+          <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+            <div>
+              <div className="mb-3 inline-flex items-center rounded-full border border-emerald-100 bg-emerald-50 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-emerald-700 dark:border-emerald-500/20 dark:bg-emerald-500/10 dark:text-emerald-300">
+                Prepnexa AI interview workflow
+              </div>
 
-            <h1 className="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">
-              {currentStep?.subtitle}
-            </h1>
+              <h1 className="text-2xl font-bold text-slate-900 dark:text-white sm:text-3xl">
+                {currentStepData?.title}
+              </h1>
 
-            <p
-              className={`mt-2 text-sm sm:text-base ${
-                isDarkMode
-                  ? "text-slate-400"
-                  : "text-slate-600"
-              }`}
-            >
-              {currentStep?.desc}
-            </p>
-          </div>
+              <p className="mt-2 text-sm leading-relaxed text-slate-500 dark:text-slate-400 sm:text-base">
+                {currentStepData?.desc}
+              </p>
+            </div>
 
-          {/* RIGHT */}
-          <div className="flex items-center gap-4">
-            {/* DARK MODE BUTTON */}
-            <button
-              onClick={toggleDarkMode}
-              className={`rounded-full border px-5 py-2 text-sm font-semibold transition-all duration-300 ${
-                isDarkMode
-                  ? "border-white/10 bg-white/10 text-white hover:bg-white/20"
-                  : "border-slate-300 bg-white text-slate-800 hover:bg-slate-100"
-              }`}
-            >
-              {isDarkMode
-                ? "☀ Light"
-                : "🌙 Dark"}
-            </button>
-
-            {/* STEP */}
-            <div
-              className={`rounded-2xl px-4 py-3 text-sm font-semibold transition-all ${
-                isDarkMode
-                  ? "bg-white/10 text-white"
-                  : "bg-slate-100 text-slate-700"
-              }`}
-            >
-              Step {step} of {steps.length}
+            <div className="rounded-2xl bg-slate-50 px-4 py-3 text-sm text-slate-600 dark:bg-slate-800 dark:text-slate-300">
+              <span className="font-semibold text-slate-900 dark:text-white">
+                Step {step}
+              </span>{" "}
+              of {steps.length}
             </div>
           </div>
-        </div>
 
-        {/* PROGRESS BAR */}
-        <div
-          className={`h-1 ${
-            isDarkMode
-              ? "bg-white/10"
-              : "bg-slate-200"
-          }`}
-        >
-          <div
-            className={`h-full rounded-full transition-all duration-500 ${
-              isDarkMode
-                ? "bg-gradient-to-r from-emerald-400 to-cyan-400"
-                : "bg-gradient-to-r from-emerald-500 to-teal-500"
-            }`}
-            style={{
-              width: `${progressPercent}%`,
-            }}
-          />
-        </div>
-      </div>
-
-      {/* STEP CARDS */}
-      <div className="mx-auto max-w-7xl px-4 pt-8 sm:px-6 lg:px-8">
-        <div className="grid gap-5 lg:grid-cols-3">
-          {steps.map((item) => {
-            const isActive =
-              item.id === step;
-
-            const isCompleted =
-              item.id < step;
-
-            return (
+          <div className="mt-6">
+            <div className="mb-4 h-2 w-full overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800">
               <div
-                key={item.id}
-                className={`group rounded-[28px] border p-6 transition-all duration-300 hover:-translate-y-1 ${
-                  isActive
-                    ? isDarkMode
-                      ? "border-emerald-400/30 bg-emerald-500/10 shadow-[0_0_35px_rgba(16,185,129,0.15)]"
-                      : "border-emerald-200 bg-emerald-50 shadow-lg"
-                    : isDarkMode
-                    ? "border-white/10 bg-white/[0.04] backdrop-blur-xl shadow-[0_0_30px_rgba(0,255,170,0.05)]"
-                    : "border-slate-200 bg-white shadow-sm hover:shadow-xl"
-                }`}
-              >
-                <div className="flex items-start justify-between gap-4">
-                  <div>
+                className="h-full rounded-full bg-emerald-500 transition-all duration-500"
+                style={{ width: progressWidth }}
+              />
+            </div>
+
+            <div className="grid gap-3 sm:grid-cols-3">
+              {steps.map((item) => {
+                const isActive = step === item.id;
+                const isCompleted = step > item.id;
+
+                return (
+                  <div
+                    key={item.id}
+                    className={`rounded-2xl border p-4 transition-all ${
+                      isActive
+                        ? "border-emerald-200 bg-emerald-50 dark:border-emerald-500/20 dark:bg-emerald-500/10"
+                        : isCompleted
+                        ? "border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900"
+                        : "border-slate-100 bg-slate-50 dark:border-slate-800 dark:bg-slate-800/60"
+                    }`}
+                  >
+                    <div className="mb-2 flex items-center justify-between">
+                      <span
+                        className={`text-xs font-semibold uppercase tracking-[0.16em] ${
+                          isActive
+                            ? "text-emerald-700 dark:text-emerald-300"
+                            : isCompleted
+                            ? "text-slate-700 dark:text-slate-300"
+                            : "text-slate-400 dark:text-slate-500"
+                        }`}
+                      >
+                        {item.label}
+                      </span>
+
+                      <div
+                        className={`flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold ${
+                          isActive
+                            ? "bg-emerald-600 text-white"
+                            : isCompleted
+                            ? "bg-slate-900 text-white dark:bg-white dark:text-slate-900"
+                            : "bg-slate-200 text-slate-500 dark:bg-slate-700 dark:text-slate-300"
+                        }`}
+                      >
+                        {item.id}
+                      </div>
+                    </div>
+
                     <p
-                      className={`text-xs font-semibold uppercase tracking-[0.22em] ${
-                        isDarkMode
-                          ? "text-slate-400"
-                          : "text-slate-500"
+                      className={`text-sm font-semibold ${
+                        isActive || isCompleted
+                          ? "text-slate-900 dark:text-white"
+                          : "text-slate-500 dark:text-slate-400"
                       }`}
                     >
                       {item.title}
                     </p>
 
-                    <h3 className="mt-4 text-2xl font-bold leading-tight">
-                      {item.subtitle}
-                    </h3>
-
                     <p
-                      className={`mt-3 text-sm leading-7 ${
-                        isDarkMode
-                          ? "text-slate-400"
-                          : "text-slate-600"
+                      className={`mt-1 text-xs leading-5 ${
+                        isActive || isCompleted
+                          ? "text-slate-500 dark:text-slate-400"
+                          : "text-slate-400 dark:text-slate-500"
                       }`}
                     >
                       {item.desc}
                     </p>
                   </div>
-
-                  {/* NUMBER */}
-                  <div
-                    className={`flex h-11 w-11 items-center justify-center rounded-full text-sm font-bold transition-all ${
-                      isCompleted
-                        ? "bg-emerald-400 text-black"
-                        : isActive
-                        ? isDarkMode
-                          ? "bg-white text-black"
-                          : "bg-slate-900 text-white"
-                        : isDarkMode
-                        ? "bg-white/10 text-white"
-                        : "bg-slate-100 text-slate-700"
-                    }`}
-                  >
-                    {item.id}
-                  </div>
-                </div>
-              </div>
-            );
-          })}
+                );
+              })}
+            </div>
+          </div>
         </div>
-      </div>
 
-      {/* MAIN CONTENT */}
-      <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-        <div
-          className={`rounded-[32px] border p-4 sm:p-6 lg:p-8 transition-all duration-300 ${
-            isDarkMode
-              ? "border-white/10 bg-white/[0.03] backdrop-blur-xl shadow-[0_0_40px_rgba(0,0,0,0.3)]"
-              : "border-slate-200 bg-white shadow-xl"
-          }`}
-        >
-          {/* STEP 1 */}
-          {step === 1 && (
-            <Step1SetUp
-              onNext={(data) => {
-                setInterviewData(data);
-                setStep(2);
-              }}
-              isDarkMode={isDarkMode}
-            />
-          )}
+        {step === 1 && (
+          <Step1SetUp
+            onStart={(data) => {
+              setInterviewData(data);
+              setStep(2);
+            }}
+          />
+        )}
 
-          {/* STEP 2 */}
-          {step === 2 && (
-            <Step2Interview
-              interviewData={interviewData}
-              onFinish={(reportData) => {
-                setInterviewData(reportData);
-                setStep(3);
-              }}
-              isDarkMode={isDarkMode}
-            />
-          )}
+        {step === 2 && (
+          <Step2Interview
+            interviewData={interviewData}
+            onFinish={(report) => {
+              setInterviewData(report);
+              setStep(3);
+            }}
+          />
+        )}
 
-          {/* STEP 3 */}
-          {step === 3 && (
-            <Step3Report
-              interviewData={interviewData}
-              isDarkMode={isDarkMode}
-            />
-          )}
-        </div>
+        {step === 3 && <Step3Report report={interviewData} />}
       </div>
     </div>
   );
