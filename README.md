@@ -213,7 +213,7 @@ npm run dev
 Add your live project link here:
 
 ```md
-[Live Demo](https://your-live-link.com)
+[Live Demo](https://prepnexa-ai-client.onrender.com/)
 ```
 
 ---
