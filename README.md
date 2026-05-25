@@ -6,7 +6,14 @@ This is not a basic CRUD project. It is a SaaS-style full stack application focu
 
 ---
 
-## Features
+## 🚀 Live Demo
+
+👉 **Live Project:**  
+[Prepnexa AI Live Demo](https://prepnexa-ai-client.onrender.com/)
+
+---
+
+## ✨ Features
 
 - Resume upload and analysis
 - AI-generated interview questions
@@ -14,17 +21,17 @@ This is not a basic CRUD project. It is a SaaS-style full stack application focu
 - Timed interview workflow
 - Voice-based interview interaction
 - Intelligent feedback after each answer
-- Final interview report and performance review
-- User interview history
-- Credit-based usage system
+- Final interview performance report
+- User interview history tracking
+- Credit-based interview access system
 - Razorpay payment integration
 - Firebase Google authentication
-- Smooth UI animations with Framer Motion
-- Full stack deployment on Render
+- Smooth animations using Framer Motion
+- Fully deployed MERN stack application
 
 ---
 
-## Tech Stack
+## 🛠 Tech Stack
 
 ### Frontend
 - React.js
@@ -47,50 +54,58 @@ This is not a basic CRUD project. It is a SaaS-style full stack application focu
 
 ---
 
-## Project Highlights
+## 📌 Project Highlights
 
-- Real SaaS-style full stack architecture
-- Resume-driven personalized question generation
-- Live interview simulation experience
-- Voice input and AI voice output
-- Secure authentication flow
-- Credit and payment system for monetization
-- Production deployment ready structure
-
----
-
-## Workflow
-
-### Step 1 – Interview Setup
-Users enter their target role, experience level, and preferred interview mode. They can also upload a resume to make the interview more personalized.
-
-### Step 2 – AI Interview Round
-The platform generates interview questions and conducts a timed session. Users can answer using voice or text, and AI gives feedback after every response.
-
-### Step 3 – Final Report
-After the interview ends, the user receives a report with feedback, performance summary, and areas for improvement.
+- SaaS-style full stack architecture
+- Resume-driven personalized interview generation
+- Real-time interview simulation experience
+- Voice input and AI voice output support
+- Secure authentication and protected routes
+- Credit & payment system for monetization
+- Production-ready deployment structure
+- Modern responsive UI with animations
 
 ---
 
-## Authentication
+## ⚙️ Workflow
 
-This project uses Firebase Google Authentication for secure user login and account access.
+### 1️⃣ Interview Setup
+Users enter their target role, experience level, and preferred interview mode. They can also upload their resume for personalized interview generation.
+
+### 2️⃣ AI Interview Round
+The platform generates interview questions dynamically and conducts a timed interview session. Users can answer using voice or text, and AI provides feedback after every response.
+
+### 3️⃣ Final Performance Report
+After completing the interview, users receive:
+- Performance summary
+- AI-generated feedback
+- Strengths and weaknesses analysis
+- Areas for improvement
 
 ---
 
-## Payments and Credits
+## 🔐 Authentication
 
-The platform includes a credit-based access system where users can purchase credits using Razorpay. These credits are used to access interview sessions and premium features.
-
----
-
-## Deployment
-
-The full stack application is deployed on Render.
+This project uses Firebase Google Authentication for secure login and account management.
 
 ---
 
-## Folder Structure
+## 💳 Payments & Credits
+
+Prepnexa AI includes a credit-based system where users can purchase interview credits using Razorpay to unlock interview sessions and premium features.
+
+---
+
+## 🌐 Deployment
+
+The complete MERN stack application is deployed on Render.
+
+Frontend:  
+[Prepnexa AI Frontend](https://prepnexa-ai-client.onrender.com/)
+
+---
+
+## 📁 Folder Structure
 
 ```bash
 client/
@@ -112,11 +127,10 @@ server/
 
 ---
 
-## Environment Variables
+## 🔑 Environment Variables
 
-Create a `.env` file in both client and server directories.
+### Client `.env`
 
-### Client
 ```env
 VITE_SERVER_URL=your_backend_url
 VITE_FIREBASE_API_KEY=your_key
@@ -127,7 +141,8 @@ VITE_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
 VITE_FIREBASE_APP_ID=your_app_id
 ```
 
-### Server
+### Server `.env`
+
 ```env
 PORT=5000
 MONGODB_URI=your_mongodb_connection_string
@@ -140,36 +155,42 @@ JWT_SECRET=your_jwt_secret
 
 ---
 
-## Installation and Setup
+## 📦 Installation & Setup
 
-### 1. Clone the repository
+### 1. Clone the Repository
+
 ```bash
 git clone https://github.com/your-username/prepnexa-ai.git
 cd prepnexa-ai
 ```
 
-### 2. Install frontend dependencies
+### 2. Install Frontend Dependencies
+
 ```bash
 cd client
 npm install
 ```
 
-### 3. Install backend dependencies
+### 3. Install Backend Dependencies
+
 ```bash
 cd ../server
 npm install
 ```
 
-### 4. Add environment variables
-Create `.env` files in both `client` and `server` folders.
+### 4. Configure Environment Variables
 
-### 5. Run backend
+Create `.env` files inside both `client` and `server` folders.
+
+### 5. Run Backend Server
+
 ```bash
 cd server
 npm run dev
 ```
 
-### 6. Run frontend
+### 6. Run Frontend
+
 ```bash
 cd client
 npm run dev
@@ -177,54 +198,49 @@ npm run dev
 
 ---
 
-## Use Cases
+## 🎯 Use Cases
 
-- Interview practice for students and job seekers
-- Technical and HR preparation
+- Interview preparation for students and job seekers
+- Technical and HR interview practice
 - Final year major project submission
 - SaaS-style portfolio project
 - Learning real-world MERN stack architecture
-- Freelance product starter idea
+- Freelance startup product foundation
 
 ---
 
-## What Makes This Project Different
+## 🚀 What Makes This Project Different
 
-- Not a simple CRUD app
-- Includes AI-powered logic and resume-based personalization
-- Combines authentication, file upload, payments, reporting, and deployment
-- Designed with a real product mindset instead of only tutorial-level implementation
-
----
-
-## Future Improvements
-
-- Add admin dashboard
-- Add multi-language interview support
-- Improve analytics and score visualization
-- Add company-specific mock interview modes
-- Add subscription plans
-- Add webcam-based interview simulation
+- Not a basic CRUD application
+- AI-powered interview generation
+- Resume-based personalized interview flow
+- Combines authentication, payments, file uploads, reporting, and deployment
+- Designed with a real product mindset
+- Production-ready scalable architecture
 
 ---
 
-## Demo
+## 🔮 Future Improvements
 
-Add your live project link here:
-
-```md
-[Live Demo](https://prepnexa-ai-client.onrender.com/)
-```
+- Admin dashboard
+- Multi-language interview support
+- Advanced analytics and score visualization
+- Company-specific mock interview modes
+- Subscription plans
+- Webcam-based interview simulation
+- AI-generated coding interview rounds
 
 ---
 
-## Author
+## 👨‍💻 Author
 
 **Manish Kumar**  
 Full Stack Developer | MERN Stack Developer
+- LinkedIn: https://www.linkedin.com/in/manish-kumar-7b0535229/
 
 ---
 
-## License
+## 📄 License
 
-This project is for educational and portfolio use. You can add an official MIT License if you want open-source sharing.
+This project is for educational and portfolio purposes.  
+You can add an MIT License for open-source distribution if required.
