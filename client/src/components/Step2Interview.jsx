@@ -1,56 +1,124 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+
 import maleVideo from "../assets/videos/male-ai.mp4";
 import femaleVideo from "../assets/videos/female-ai.mp4";
+
 import Timer from "./Timer";
+
 import { motion } from "motion/react";
+
 import {
   FaMicrophone,
   FaMicrophoneSlash,
   FaWaveSquare,
   FaRegClock,
 } from "react-icons/fa";
+
 import axios from "axios";
+
 import { ServerUrl } from "../App";
+
 import { HiSparkles } from "react-icons/hi2";
 
-function Step2Interview({ interviewData, onFinish }) {
-  const { interviewId, questions = [], userName, mode } =
-    interviewData || {};
+function Step2Interview({
+  interviewData,
+  onFinish,
+  isDarkMode,
+}) {
+  const {
+    interviewId,
+    questions = [],
+    userName,
+    mode,
+  } = interviewData || {};
 
-  const [hasStarted, setHasStarted] = useState(false);
-  const [isIntroPhase, setIsIntroPhase] = useState(true);
-  const [isMicOn, setIsMicOn] = useState(true);
-  const [isAIPlaying, setIsAIPlaying] = useState(false);
-  const [currentIndex, setCurrentIndex] = useState(0);
+  // DARK MODE FIX
+  const darkMode =
+    isDarkMode ??
+    JSON.parse(
+      localStorage.getItem("darkMode")
+    ) ??
+    false;
+
+  const [hasStarted, setHasStarted] =
+    useState(false);
+
+  const [isIntroPhase, setIsIntroPhase] =
+    useState(true);
+
+  const [isMicOn, setIsMicOn] =
+    useState(true);
+
+  const [isAIPlaying, setIsAIPlaying] =
+    useState(false);
+
+  const [currentIndex, setCurrentIndex] =
+    useState(0);
+
   const [answer, setAnswer] = useState("");
-  const [feedback, setFeedback] = useState("");
+
+  const [feedback, setFeedback] =
+    useState("");
+
   const [timeLeft, setTimeLeft] = useState(
     questions[0]?.timeLimit || 60
   );
-  const [selectedVoice, setSelectedVoice] = useState(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isFinishing, setIsFinishing] = useState(false);
-  const [voiceGender, setVoiceGender] = useState("female");
-  const [subtitle, setSubtitle] = useState("");
+
+  const [selectedVoice, setSelectedVoice] =
+    useState(null);
+
+  const [isSubmitting, setIsSubmitting] =
+    useState(false);
+
+  const [isFinishing, setIsFinishing] =
+    useState(false);
+
+  const [voiceGender, setVoiceGender] =
+    useState("female");
+
+  const [subtitle, setSubtitle] =
+    useState("");
+
   const [error, setError] = useState("");
-  const [speechSupported, setSpeechSupported] = useState(true);
-  const [isTransitioning, setIsTransitioning] = useState(false);
+
+  const [speechSupported, setSpeechSupported] =
+    useState(true);
+
+  const [isTransitioning, setIsTransitioning] =
+    useState(false);
 
   const recognitionRef = useRef(null);
+
   const videoRef = useRef(null);
+
   const answerRef = useRef("");
+
   const speakingRef = useRef(false);
+
   const utteranceRef = useRef(null);
-  const finishingRef = useRef(false);
 
-  const currentQuestion = questions[currentIndex];
+  const currentQuestion =
+    questions[currentIndex];
+
   const videoSource =
-    voiceGender === "male" ? maleVideo : femaleVideo;
+    voiceGender === "male"
+      ? maleVideo
+      : femaleVideo;
 
-  const totalQuestions = questions.length || 0;
+  const totalQuestions =
+    questions.length || 0;
 
   const progressPercent = totalQuestions
-    ? Math.round(((currentIndex + 1) / totalQuestions) * 100)
+    ? Math.round(
+        ((currentIndex + 1) /
+          totalQuestions) *
+          100
+      )
     : 0;
 
   const sectionLabel = useMemo(() => {
@@ -61,16 +129,20 @@ function Step2Interview({ interviewData, onFinish }) {
 
     if (rawSection) return rawSection;
 
-    if (currentIndex === 0) return "Introduction";
+    if (currentIndex === 0)
+      return "Introduction";
 
-    if ((mode || "").toLowerCase() === "hr")
+    if (
+      (mode || "").toLowerCase() === "hr"
+    )
       return "Behavioral Round";
 
     return "Technical Round";
   }, [currentQuestion, currentIndex, mode]);
 
   const statusLabel = useMemo(() => {
-    if (isAIPlaying) return "AI speaking";
+    if (isAIPlaying)
+      return "AI speaking";
 
     if (
       isSubmitting ||
@@ -79,7 +151,8 @@ function Step2Interview({ interviewData, onFinish }) {
     )
       return "Processing";
 
-    if (!isMicOn) return "Mic paused";
+    if (!isMicOn)
+      return "Mic paused";
 
     return "Listening";
   }, [
@@ -96,7 +169,8 @@ function Step2Interview({ interviewData, onFinish }) {
 
   useEffect(() => {
     const speechRecognitionSupported =
-      "webkitSpeechRecognition" in window ||
+      "webkitSpeechRecognition" in
+        window ||
       "SpeechRecognition" in window;
 
     const speechSynthesisSupported =
@@ -121,40 +195,34 @@ function Step2Interview({ interviewData, onFinish }) {
       const voices =
         window.speechSynthesis.getVoices();
 
-      if (!voices || !voices.length) return;
+      if (!voices.length) return;
 
       const femaleVoice =
-        voices.find((voice) => {
-          const name = voice.name.toLowerCase();
-
-          return (
-            name.includes("zira") ||
-            name.includes("samantha") ||
-            name.includes("female")
-          );
-        }) ||
         voices.find((voice) =>
-          voice.lang?.toLowerCase().includes("en")
-        );
+          voice.name
+            .toLowerCase()
+            .includes("female")
+        ) ||
+        voices.find((voice) =>
+          voice.name
+            .toLowerCase()
+            .includes("zira")
+        ) ||
+        voices[0];
 
-      const maleVoice = voices.find((voice) => {
-        const name = voice.name.toLowerCase();
+      const maleVoice = voices.find(
+        (voice) =>
+          voice.name
+            .toLowerCase()
+            .includes("male")
+      );
 
-        return (
-          name.includes("david") ||
-          name.includes("mark") ||
-          name.includes("male")
-        );
-      });
+      setSelectedVoice(femaleVoice);
 
-      if (femaleVoice) {
-        setSelectedVoice(femaleVoice);
-        setVoiceGender("female");
-      } else if (maleVoice) {
-        setSelectedVoice(maleVoice);
+      if (maleVoice) {
         setVoiceGender("male");
       } else {
-        setSelectedVoice(voices[0]);
+        setVoiceGender("female");
       }
     };
 
@@ -186,9 +254,8 @@ function Step2Interview({ interviewData, onFinish }) {
       isSubmitting ||
       isTransitioning ||
       isFinishing
-    ) {
+    )
       return;
-    }
 
     try {
       recognitionRef.current.start();
@@ -213,8 +280,6 @@ function Step2Interview({ interviewData, onFinish }) {
       const utterance =
         new SpeechSynthesisUtterance(
           text
-            .replace(/,/g, ", ")
-            .replace(/\./g, ". ")
         );
 
       utteranceRef.current = utterance;
@@ -222,12 +287,9 @@ function Step2Interview({ interviewData, onFinish }) {
       if (selectedVoice)
         utterance.voice = selectedVoice;
 
-      utterance.lang =
-        selectedVoice?.lang || "en-US";
-
+      utterance.lang = "en-US";
       utterance.rate = 0.95;
       utterance.pitch = 1;
-      utterance.volume = 1;
 
       utterance.onstart = () => {
         speakingRef.current = true;
@@ -250,8 +312,9 @@ function Step2Interview({ interviewData, onFinish }) {
 
         videoRef.current?.pause?.();
 
-        if (videoRef.current)
+        if (videoRef.current) {
           videoRef.current.currentTime = 0;
+        }
 
         if (
           isMicOn &&
@@ -264,41 +327,20 @@ function Step2Interview({ interviewData, onFinish }) {
 
         setTimeout(() => {
           setSubtitle("");
-          utteranceRef.current = null;
           resolve();
-        }, 250);
+        }, 300);
       };
 
       utterance.onerror = () => {
-        speakingRef.current = false;
-
         setIsAIPlaying(false);
-
-        setSubtitle("");
-
-        videoRef.current?.pause?.();
-
-        if (videoRef.current)
-          videoRef.current.currentTime = 0;
-
-        utteranceRef.current = null;
-
         resolve();
       };
 
-      try {
-        setTimeout(() => {
-          try {
-            window.speechSynthesis.speak(
-              utterance
-            );
-          } catch {
-            resolve();
-          }
-        }, 80);
-      } catch {
-        resolve();
-      }
+      setTimeout(() => {
+        window.speechSynthesis.speak(
+          utterance
+        );
+      }, 100);
     });
   };
 
@@ -311,10 +353,13 @@ function Step2Interview({ interviewData, onFinish }) {
 
     if (!SpeechRecognition) return;
 
-    const recognition = new SpeechRecognition();
+    const recognition =
+      new SpeechRecognition();
 
     recognition.lang = "en-US";
+
     recognition.continuous = true;
+
     recognition.interimResults = false;
 
     recognition.onresult = (event) => {
@@ -352,7 +397,6 @@ function Step2Interview({ interviewData, onFinish }) {
     return () => {
       try {
         recognition.stop();
-        recognition.abort();
       } catch {}
     };
   }, [
@@ -386,7 +430,6 @@ function Step2Interview({ interviewData, onFinish }) {
     if (
       !hasStarted ||
       isIntroPhase ||
-      !currentQuestion ||
       feedback ||
       isTransitioning
     )
@@ -407,10 +450,19 @@ function Step2Interview({ interviewData, onFinish }) {
   }, [
     hasStarted,
     isIntroPhase,
-    currentQuestion,
     feedback,
     isTransitioning,
   ]);
+
+  useEffect(() => {
+    if (
+      timeLeft === 0 &&
+      !isSubmitting &&
+      !feedback
+    ) {
+      submitAnswer(true);
+    }
+  }, [timeLeft]);
 
   const beginInterview = async () => {
     setError("");
@@ -420,11 +472,11 @@ function Step2Interview({ interviewData, onFinish }) {
     await speakText(
       `Hi ${
         userName || "there"
-      }, welcome to Prepnexa AI.`
+      }, welcome to Prepnexa AI Interview.`
     );
 
     await speakText(
-      "Please answer clearly and keep your response structured."
+      "Please answer clearly and confidently."
     );
 
     setIsIntroPhase(false);
@@ -435,7 +487,7 @@ function Step2Interview({ interviewData, onFinish }) {
           questions[0].question
         );
       }
-    }, 400);
+    }, 500);
   };
 
   const submitAnswer = async (
@@ -451,14 +503,12 @@ function Step2Interview({ interviewData, onFinish }) {
     if (!answerRef.current.trim()) {
       if (isAutoSubmit) {
         setAnswer("No answer provided.");
-
         answerRef.current =
           "No answer provided.";
       } else {
         setError(
-          "Please answer the current question before submitting."
+          "Please answer before submitting."
         );
-
         return;
       }
     }
@@ -482,16 +532,18 @@ function Step2Interview({ interviewData, onFinish }) {
           answer: finalAnswer,
           timeTaken: Math.max(
             0,
-            (currentQuestion.timeLimit || 60) -
-              timeLeft
+            (currentQuestion.timeLimit ||
+              60) - timeLeft
           ),
         },
-        { withCredentials: true }
+        {
+          withCredentials: true,
+        }
       );
 
       const receivedFeedback =
         result?.data?.feedback ||
-        "Your answer has been submitted.";
+        "Answer submitted successfully.";
 
       setFeedback(receivedFeedback);
 
@@ -501,48 +553,120 @@ function Step2Interview({ interviewData, onFinish }) {
         currentIndex + 1 <
         questions.length
       ) {
-        setTimeout(() => {
-          setAnswer("");
-          setFeedback("");
-          setCurrentIndex(
-            (prev) => prev + 1
+        setIsTransitioning(true);
+
+        await speakText(
+          "Great. Let's move to the next question."
+        );
+
+        const nextIndex =
+          currentIndex + 1;
+
+        setCurrentIndex(nextIndex);
+
+        setAnswer("");
+
+        answerRef.current = "";
+
+        setFeedback("");
+
+        setTimeLeft(
+          questions[nextIndex]
+            ?.timeLimit || 60
+        );
+
+        setTimeout(async () => {
+          await speakText(
+            questions[nextIndex]
+              ?.question
           );
-        }, 1500);
+
+          setIsTransitioning(false);
+        }, 700);
       } else {
-        onFinish(result.data);
+        setIsFinishing(true);
+
+        await speakText(
+          `Thank you ${
+            userName || ""
+          }. Your interview has been completed successfully.`
+        );
+
+        const finalReport =
+          await axios.post(
+            `${ServerUrl}/api/interview/finish`,
+            { interviewId },
+            {
+              withCredentials: true,
+            }
+          );
+
+        onFinish(finalReport.data);
       }
     } catch (err) {
       console.error(err);
 
       setError(
-        "Answer submission failed. Please try again."
+        "Answer submission failed."
       );
     } finally {
       setIsSubmitting(false);
     }
   };
 
+  const theme = {
+    page: darkMode
+      ? "min-h-screen bg-[#070b11] text-white"
+      : "min-h-screen bg-[#f8fafc] text-slate-900",
+
+    shell: darkMode
+      ? "overflow-hidden rounded-[28px] border border-white/10 bg-[#0b1118] shadow-[0_24px_80px_rgba(0,0,0,0.35)]"
+      : "overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-[0_24px_80px_rgba(15,23,42,0.08)]",
+
+    leftBorder: darkMode
+      ? "border-b border-white/10 lg:border-b-0 lg:border-r lg:border-white/10"
+      : "border-b border-slate-200 lg:border-b-0 lg:border-r lg:border-slate-200",
+
+    badge: darkMode
+      ? "mb-5 inline-flex items-center gap-2 rounded-full border border-emerald-400/20 bg-emerald-400/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-emerald-300"
+      : "mb-5 inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-emerald-700",
+  };
+
   return (
-    <div className="min-h-screen bg-[#f8fafc] text-slate-900 transition-colors dark:bg-[#070b11] dark:text-white">
+    <div className={theme.page}>
       <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:px-8">
         <motion.div
-          initial={{ opacity: 0, y: 18 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.35 }}
-          className="overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-[0_24px_80px_rgba(15,23,42,0.08)] transition-colors dark:border-white/10 dark:bg-[#0b1118] dark:shadow-[0_24px_80px_rgba(0,0,0,0.35)]"
+          initial={{
+            opacity: 0,
+            y: 18,
+          }}
+          animate={{
+            opacity: 1,
+            y: 0,
+          }}
+          transition={{
+            duration: 0.35,
+          }}
+          className={theme.shell}
         >
           <div className="grid lg:grid-cols-[420px_minmax(0,1fr)]">
-            <div className="border-b border-slate-200 dark:border-white/10 lg:border-b-0 lg:border-r">
+            {/* LEFT */}
+            <div className={theme.leftBorder}>
               <div className="p-6 sm:p-8">
-                <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-emerald-700 dark:border-emerald-400/20 dark:bg-emerald-400/10 dark:text-emerald-300">
+                <div className={theme.badge}>
                   <HiSparkles />
                   Live interview
                 </div>
 
-                <div className="overflow-hidden rounded-[20px] border border-slate-200 bg-slate-100 dark:border-white/10 dark:bg-black">
+                <div
+                  className={`overflow-hidden rounded-[20px] ${
+                    darkMode
+                      ? "border border-white/10 bg-black"
+                      : "border border-slate-200 bg-slate-100"
+                  }`}
+                >
                   <video
                     src={videoSource}
-                    key={videoSource}
                     ref={videoRef}
                     muted
                     playsInline
@@ -551,107 +675,89 @@ function Step2Interview({ interviewData, onFinish }) {
                   />
                 </div>
 
-                <div className="mt-5 space-y-5">
-                  <div>
-                    <div className="mb-2 flex items-center justify-between">
-                      <p className="text-[11px] uppercase tracking-[0.16em] text-slate-500">
-                        Progress
-                      </p>
+                {subtitle && (
+                  <motion.div
+                    initial={{
+                      opacity: 0,
+                      y: 6,
+                    }}
+                    animate={{
+                      opacity: 1,
+                      y: 0,
+                    }}
+                    className={`mt-5 rounded-[18px] px-4 py-4 ${
+                      darkMode
+                        ? "border border-emerald-400/15 bg-emerald-500/5"
+                        : "border border-emerald-200 bg-emerald-50"
+                    }`}
+                  >
+                    <p
+                      className={`text-[11px] font-semibold uppercase tracking-[0.14em] ${
+                        darkMode
+                          ? "text-emerald-300"
+                          : "text-emerald-700"
+                      }`}
+                    >
+                      AI speaking
+                    </p>
 
-                      <p className="text-sm font-medium text-slate-800 dark:text-white/90">
-                        {Math.min(
-                          currentIndex + 1,
-                          totalQuestions || 1
-                        )}{" "}
-                        / {totalQuestions}
-                      </p>
-                    </div>
-
-                    <div className="h-1.5 overflow-hidden rounded-full bg-slate-200 dark:bg-white/10">
-                      <div
-                        className="h-full rounded-full bg-emerald-400 transition-all duration-500"
-                        style={{
-                          width: `${progressPercent}%`,
-                        }}
-                      />
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-6 border-y border-slate-200 py-4 dark:border-white/10">
-                    <div>
-                      <p className="text-[11px] uppercase tracking-[0.16em] text-slate-500">
-                        Section
-                      </p>
-
-                      <p className="mt-2 text-sm font-medium text-slate-800 dark:text-white/90">
-                        {sectionLabel}
-                      </p>
-                    </div>
-
-                    <div>
-                      <p className="text-[11px] uppercase tracking-[0.16em] text-slate-500">
-                        Status
-                      </p>
-
-                      <p className="mt-2 inline-flex items-center gap-2 text-sm font-medium text-cyan-500">
-                        <FaWaveSquare className="text-[11px]" />
-                        {statusLabel}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="rounded-[20px] border border-slate-200 bg-slate-50 px-4 py-4 dark:border-white/8 dark:bg-white/5">
-                    <div className="mb-3 flex items-center justify-between">
-                      <span className="text-[11px] uppercase tracking-[0.16em] text-slate-500">
-                        Time remaining
-                      </span>
-
-                      <span className="inline-flex items-center gap-2 text-[11px] font-medium text-slate-500 dark:text-slate-400">
-                        <FaRegClock />
-                        {currentQuestion?.timeLimit ||
-                          60}
-                        s limit
-                      </span>
-                    </div>
-
-                    <div className="flex items-center justify-center rounded-[18px] bg-white px-4 py-5 dark:bg-[#06090f]">
-                      <Timer
-                        timeLeft={timeLeft}
-                        totalTime={
-                          currentQuestion?.timeLimit ||
-                          60
-                        }
-                      />
-                    </div>
-                  </div>
-                </div>
+                    <p
+                      className={`mt-2 text-sm leading-7 ${
+                        darkMode
+                          ? "text-emerald-100"
+                          : "text-emerald-900"
+                      }`}
+                    >
+                      {subtitle}
+                    </p>
+                  </motion.div>
+                )}
               </div>
             </div>
 
+            {/* RIGHT */}
             <div className="p-6 sm:p-8 lg:p-10">
               <div className="mx-auto max-w-2xl">
-                <div className="mb-8 border-b border-slate-200 pb-6 dark:border-white/10">
-                  <p className="text-xs font-semibold uppercase tracking-[0.26em] text-emerald-600 dark:text-emerald-400">
+                <div
+                  className={`mb-8 border-b pb-6 ${
+                    darkMode
+                      ? "border-white/10"
+                      : "border-slate-200"
+                  }`}
+                >
+                  <p
+                    className={`text-xs font-semibold uppercase tracking-[0.26em] ${
+                      darkMode
+                        ? "text-emerald-400"
+                        : "text-emerald-600"
+                    }`}
+                  >
                     PREPNEXA AI
                   </p>
 
-                  <h2 className="mt-3 text-[30px] font-semibold tracking-[-0.02em] text-slate-900 dark:text-white">
+                  <h2
+                    className={`mt-3 text-[30px] font-semibold tracking-[-0.02em] ${
+                      darkMode
+                        ? "text-white"
+                        : "text-slate-900"
+                    }`}
+                  >
                     Interview Session
                   </h2>
-
-                  <p className="mt-2 max-w-2xl text-sm leading-7 text-slate-600 dark:text-slate-400">
-                    Answer each question clearly and stay concise.
-                  </p>
                 </div>
 
                 {!hasStarted ? (
-                  <div className="rounded-[22px] border border-slate-200 bg-slate-50 p-6 dark:border-white/8 dark:bg-white/5">
-                    <p className="max-w-xl text-sm leading-7 text-slate-600 dark:text-slate-300">
-                      Your interview is ready.
-                    </p>
-
+                  <div
+                    className={`rounded-[22px] p-6 ${
+                      darkMode
+                        ? "border border-white/8 bg-white/[0.025]"
+                        : "border border-slate-200 bg-slate-50"
+                    }`}
+                  >
                     <button
-                      onClick={beginInterview}
+                      onClick={
+                        beginInterview
+                      }
                       className="mt-6 inline-flex min-h-[48px] items-center justify-center rounded-full bg-emerald-400 px-6 py-3 text-sm font-semibold text-black transition hover:bg-emerald-300"
                     >
                       Begin Interview
@@ -659,20 +765,44 @@ function Step2Interview({ interviewData, onFinish }) {
                   </div>
                 ) : (
                   <>
-                    <div className="rounded-[22px] border border-slate-200 bg-slate-50 p-5 sm:p-6 dark:border-white/8 dark:bg-white/5">
+                    <div
+                      className={`rounded-[22px] p-5 sm:p-6 ${
+                        darkMode
+                          ? "border border-white/8 bg-white/[0.02]"
+                          : "border border-slate-200 bg-slate-50"
+                      }`}
+                    >
                       <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
-                        <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">
+                        <p
+                          className={`text-xs font-semibold uppercase tracking-[0.16em] ${
+                            darkMode
+                              ? "text-slate-400"
+                              : "text-slate-500"
+                          }`}
+                        >
                           Question{" "}
                           {currentIndex + 1} of{" "}
                           {questions.length}
                         </p>
 
-                        <span className="rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700 dark:border-emerald-400/20 dark:bg-emerald-400/10 dark:text-emerald-300">
+                        <span
+                          className={`rounded-full px-3 py-1 text-xs font-semibold ${
+                            darkMode
+                              ? "border border-emerald-400/20 bg-emerald-400/10 text-emerald-300"
+                              : "border border-emerald-200 bg-emerald-50 text-emerald-700"
+                          }`}
+                        >
                           {sectionLabel}
                         </span>
                       </div>
 
-                      <div className="text-base font-semibold leading-8 text-slate-900 dark:text-white sm:text-[18px]">
+                      <div
+                        className={`text-base font-semibold leading-8 sm:text-[18px] ${
+                          darkMode
+                            ? "text-white"
+                            : "text-slate-900"
+                        }`}
+                      >
                         {
                           currentQuestion?.question
                         }
@@ -681,24 +811,28 @@ function Step2Interview({ interviewData, onFinish }) {
 
                     <div className="pt-6">
                       <textarea
-                        placeholder="Start speaking or type your answer here..."
-                        onChange={(e) => {
+                        value={answer}
+                        onChange={(e) =>
                           setAnswer(
                             e.target.value
-                          );
-
-                          if (error)
-                            setError("");
-                        }}
-                        value={answer}
-                        disabled={
-                          isSubmitting
+                          )
                         }
-                        className="h-[260px] w-full resize-none rounded-[20px] border border-slate-200 bg-white p-4 text-[15px] leading-7 text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-emerald-500 sm:h-[320px] sm:p-5 dark:border-white/8 dark:bg-[#0d141d] dark:text-white dark:placeholder:text-slate-500 dark:focus:border-emerald-400"
+                        placeholder="Start speaking or type your answer here..."
+                        className={`h-[260px] w-full resize-none rounded-[20px] p-4 text-[15px] leading-7 outline-none transition sm:h-[320px] sm:p-5 ${
+                          darkMode
+                            ? "border border-white/8 bg-[#0d141d] text-white placeholder:text-slate-500"
+                            : "border border-slate-200 bg-white text-slate-900 placeholder:text-slate-400"
+                        }`}
                       />
 
                       {error && (
-                        <div className="mt-4 rounded-[18px] border border-red-200 bg-red-50 px-4 py-4 text-sm text-red-700 dark:border-red-400/20 dark:bg-red-500/5 dark:text-red-300">
+                        <div
+                          className={`mt-4 rounded-[18px] px-4 py-4 text-sm ${
+                            darkMode
+                              ? "border border-red-400/20 bg-red-500/5 text-red-300"
+                              : "border border-red-200 bg-red-50 text-red-700"
+                          }`}
+                        >
                           {error}
                         </div>
                       )}
@@ -713,12 +847,18 @@ function Step2Interview({ interviewData, onFinish }) {
                           whileTap={{
                             scale: 0.96,
                           }}
-                          className="flex h-14 w-14 items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-800 transition hover:bg-slate-50 dark:border-white/10 dark:bg-white/10 dark:text-white dark:hover:bg-white/15"
+                          className={`flex h-14 w-14 items-center justify-center rounded-2xl border transition ${
+                            darkMode
+                              ? "border-white/10 bg-white/10 text-white hover:bg-white/15"
+                              : "border-slate-200 bg-white text-slate-800 hover:bg-slate-50"
+                          }`}
                         >
                           {isMicOn ? (
-                            <FaMicrophone />
+                            <FaMicrophone size={18} />
                           ) : (
-                            <FaMicrophoneSlash />
+                            <FaMicrophoneSlash
+                              size={18}
+                            />
                           )}
                         </motion.button>
 
@@ -731,7 +871,11 @@ function Step2Interview({ interviewData, onFinish }) {
                           whileTap={{
                             scale: 0.98,
                           }}
-                          className="flex-1 rounded-2xl bg-slate-900 py-3.5 text-sm font-semibold text-white transition hover:bg-slate-800 dark:bg-white dark:text-black"
+                          className={`flex-1 rounded-2xl py-3.5 text-sm font-semibold transition sm:text-base ${
+                            darkMode
+                              ? "bg-white text-black hover:bg-slate-100"
+                              : "bg-slate-900 text-white hover:bg-slate-800"
+                          }`}
                         >
                           {isSubmitting
                             ? "Submitting..."
